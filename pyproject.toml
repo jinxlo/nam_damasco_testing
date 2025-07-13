@@ -1,0 +1,12 @@
+[project]
+name = "namwoo-app"
+version = "1.0.4"
+description = "AI-Powered Sales & Support Assistant"
+
+# This section tells the installer how to find your actual Python package(s).
+[tool.setuptools.packages.find]
+# The 'where = ["."]' configuration tells the installer to look for packages
+# starting from the current directory (the project root). This is the correct
+# setting for a "flat-layout" project where your 'namwoo_app' package is
+# at the top level, not inside a 'src' directory.
+where = ["."]

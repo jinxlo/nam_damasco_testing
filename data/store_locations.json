@@ -1,0 +1,33 @@
+{
+  "stores": [
+    { "branch_name": "La California", "latitude": 10.481710, "longitude": -66.818460 },
+    { "branch_name": "Catia (BARBUR)", "latitude": 10.512614, "longitude": -66.946028 },
+    { "branch_name": "Catia (Gato Negro)", "latitude": 10.509748, "longitude": -66.935105 },
+    { "branch_name": "El Paraiso", "latitude": 10.479144, "longitude": -66.942008 },
+    { "branch_name": "CCCT", "latitude": 10.485372, "longitude": -66.855163 },
+    { "branch_name": "La Candelaria", "latitude": 10.503679, "longitude": -66.902652 },
+    { "branch_name": "Las Mercedes", "latitude": 10.484246, "longitude": -66.862624 },
+    { "branch_name": "Sabana Grande", "latitude": 10.493397, "longitude": -66.878369 },
+    { "branch_name": "San Martin 1", "latitude": 10.495586, "longitude": -66.932695 },
+    { "branch_name": "San Martin 2", "latitude": 10.501565, "longitude": -66.921852 },
+    { "branch_name": "La Trinidad", "latitude": 10.437006, "longitude": -66.859904 },
+    { "branch_name": "Nueva Granada", "latitude": 10.481827, "longitude": -66.904183 },
+    { "branch_name": "Valencia 1", "latitude": 10.179562, "longitude": -68.006254 },
+    { "branch_name": "Valencia 2", "latitude": 10.198353, "longitude": -68.005012 },
+    { "branch_name": "La Guaira", "latitude": 10.601781, "longitude": -66.929266 },
+    { "branch_name": "Guatire", "latitude": 10.467027, "longitude": -66.573307 },
+    { "branch_name": "Barquisimeto 1", "latitude": 10.073965, "longitude": -69.302462 },
+    { "branch_name": "Barquisimeto 2", "latitude": 10.082559, "longitude": -69.325432 },
+    { "branch_name": "Lecheria", "latitude": 10.176336, "longitude": -64.682253 },
+    { "branch_name": "Puerto la Cruz", "latitude": 10.220127, "longitude": -64.636446 },
+    { "branch_name": "Los Teques", "latitude": 10.343160, "longitude": -67.040652 },
+    { "branch_name": "Maracaibo", "latitude": 10.643540, "longitude": -71.634924 },
+    { "branch_name": "Cagua", "latitude": 10.181287, "longitude": -67.449954 },
+    { "branch_name": "Maracay", "latitude": 10.245529, "longitude": -67.576227 },
+    { "branch_name": "Puerto Ordaz", "latitude": 8.290088, "longitude": -62.742291 },
+    { "branch_name": "San Cristobal", "latitude": 7.773840, "longitude": -72.231877 },
+    { "branch_name": "Maturin", "latitude": 9.783146, "longitude": -63.198101 },
+    { "branch_name": "Valera", "latitude": 9.321928, "longitude": -70.599879 },
+    { "branch_name": "San Felipe", "latitude": 10.321801, "longitude": -68.747370 }
+  ]
+}
