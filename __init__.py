@@ -6,6 +6,7 @@ from flask import Flask
 import redis
 from .config.config import Config
 from .utils.logging_utils import JsonFormatter
+from .utils.telegram_handler import TelegramAlertHandler
 
 # --- Logging Configuration (Unchanged) ---
 log_level_env = os.environ.get('LOG_LEVEL', 'INFO').upper()
@@ -59,11 +60,25 @@ logging_config = {
             'maxBytes': 10485760,
             'backupCount': 5,
             'encoding': 'utf8',
+        },
+        'conversation_file': {
+            'level': log_level_env,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'json',
+            'filename': os.path.join(log_dir_path, 'conversations.json'),
+            'maxBytes': 10485760,
+            'backupCount': 5,
+            'encoding': 'utf8',
+        },
+        'telegram': {
+            'level': 'ERROR',
+            'class': 'namwoo_app.utils.telegram_handler.TelegramAlertHandler',
+            'formatter': 'standard',
         }
     },
     'loggers': {
         '': {
-            'handlers': ['console', 'app_file', 'json_file'],
+            'handlers': ['console', 'app_file', 'json_file', 'telegram'],
             'level': log_level_env,
             'propagate': True
         },
@@ -71,8 +86,9 @@ logging_config = {
         'sqlalchemy.engine': {'handlers': ['console', 'app_file', 'json_file'], 'level': 'WARNING', 'propagate': False,},
         # APScheduler logger removed as the package is no longer a direct dependency
         'sync': {'handlers': ['console', 'sync_file', 'json_file'], 'level': log_level_env, 'propagate': False,},
-        'celery': {'handlers': ['console', 'app_file', 'json_file'], 'level': log_level_env, 'propagate': False,},
-        'namwoo_app': {'handlers': ['console', 'app_file', 'json_file'], 'level': log_level_env, 'propagate': False}
+        'celery': {'handlers': ['console', 'app_file', 'json_file', 'telegram'], 'level': log_level_env, 'propagate': False,},
+        'namwoo_app': {'handlers': ['console', 'app_file', 'json_file'], 'level': log_level_env, 'propagate': False},
+        'conversation': {'handlers': ['conversation_file', 'json_file'], 'level': log_level_env, 'propagate': False}
     }
 }
 dictConfig(logging_config)

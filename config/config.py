@@ -122,6 +122,11 @@ class Config:
     WHATSAPP_API_VERSION = os.environ.get('WHATSAPP_API_VERSION', 'v19.0')
     LOG_WA_MESSAGES_INTERNALLY = os.environ.get('LOG_WA_MESSAGES_INTERNALLY', 'false').lower() == 'true'
 
+    # --- Telegram Alerts ---
+    TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+    TELEGRAM_ALERT_CHAT_ID = os.environ.get('TELEGRAM_ALERT_CHAT_ID')
+    UNANSWERED_THRESHOLD_MINUTES = int(os.environ.get('UNANSWERED_THRESHOLD_MINUTES', 5))
+
     # --- Application Specific ---
     MAX_HISTORY_MESSAGES = int(os.environ.get('MAX_HISTORY_MESSAGES', 16))
     PRODUCT_SEARCH_LIMIT = max(5, int(os.environ.get('PRODUCT_SEARCH_LIMIT', 10)))

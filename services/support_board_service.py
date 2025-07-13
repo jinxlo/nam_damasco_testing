@@ -5,6 +5,7 @@ import json
 import re # Import regex module for cleaning phone numbers
 from flask import current_app
 from typing import Optional, List, Dict, Any
+from ..utils.conversation_logger import log_conversation_event
 
 # Assuming Config is correctly imported and loads .env variables
 from ..config import Config
@@ -330,6 +331,13 @@ def _send_messenger_message(
                 if has_recipient_id and has_message_id:
                     fb_message_id = response_data[0].get('message_id', 'N/A')
                     logger.info(f"Messenger/IG message acknowledged as successful by SB API (FB Msg ID: {fb_message_id}) for Conv ID {conversation_id} to PSID ...{psid[-6:]} (Parsed from list response)")
+                    log_conversation_event(
+                        event_type="bot_reply",
+                        conversation_id=conversation_id,
+                        user_id=psid,
+                        source="facebook",
+                        message=message_text,
+                    )
                     return True
 
     is_dict = isinstance(response_data, dict)
@@ -342,12 +350,26 @@ def _send_messenger_message(
         if has_recipient_id_dict and has_message_id_dict:
             fb_message_id = response_data.get('message_id', 'N/A')
             logger.info(f"Messenger/IG message acknowledged as successful by SB API (FB Msg ID: {fb_message_id}) for Conv ID {conversation_id} to PSID ...{psid[-6:]} (Parsed from dict response)")
+            log_conversation_event(
+                event_type="bot_reply",
+                conversation_id=conversation_id,
+                user_id=psid,
+                source="facebook",
+                message=message_text,
+            )
             return True
 
     is_true_bool = response_data is True
     logger.debug(f"[_send_messenger_message] Fallback Check: response_data is True = {is_true_bool}")
     if is_true_bool:
         logger.warning(f"Messenger/IG message API call for Conv ID {conversation_id} returned 'True', which differs from documented structure, but treating as success.")
+        log_conversation_event(
+            event_type="bot_reply",
+            conversation_id=conversation_id,
+            user_id=psid,
+            source="facebook",
+            message=message_text,
+        )
         return True
 
     logger.error(f"Failed to send Messenger/IG message via SB API for Conv ID {conversation_id} to PSID ...{psid[-6:]}. Unexpected response structure after all checks: {response_data}")
@@ -549,6 +571,13 @@ def send_reply_to_channel(
                     "Skipping internal SB message add to avoid duplication because LOG_WA_MESSAGES_INTERNALLY=False"
                 )
             log_bot_message_to_support_board(conversation_id, message_text)
+            log_conversation_event(
+                event_type="bot_reply",
+                conversation_id=conversation_id,
+                user_id=target_user_id,
+                source="whatsapp",
+                message=message_text,
+            )
         else:
              logger.error(f"Direct external WA send via Meta Cloud API failed for conv {conversation_id}.")
         return external_success
@@ -586,6 +615,13 @@ def send_reply_to_channel(
                         logger.error(f"Failed to add FB/IG message internally to SB dashboard for conv {conversation_id} after successful external send.")
                 else:
                     logger.error("Cannot add FB/IG message internally to SB dashboard: SUPPORT_BOARD_DM_BOT_USER_ID not configured.")
+                log_conversation_event(
+                    event_type="bot_reply",
+                    conversation_id=conversation_id,
+                    user_id=target_user_id,
+                    source="facebook" if effective_source == 'fb' else 'instagram',
+                    message=message_text,
+                )
             else:
                 logger.error(f"External FB/IG send via messenger-send-message failed for conv {conversation_id}.")
             return external_success
@@ -633,6 +669,13 @@ def send_reply_to_channel(
                     logger.error(f"Failed to add Telegram message internally to SB dashboard for conv {conversation_id} after successful external send.")
             else:
                 logger.error("Cannot add Telegram message internally to SB dashboard: SUPPORT_BOARD_DM_BOT_USER_ID not configured.")
+            log_conversation_event(
+                event_type="bot_reply",
+                conversation_id=conversation_id,
+                user_id=chat_id,
+                source="telegram",
+                message=message_text,
+            )
         else:
             logger.error(f"External Telegram send via SB API failed for conv {conversation_id}.")
         return external_success
