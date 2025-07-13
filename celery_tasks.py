@@ -14,6 +14,11 @@ from .celery_app import celery_app, FlaskTask
 from .services import product_service, openai_service, llm_processing_service
 # --- END OF MODIFICATION ---
 from .utils import db_utils, product_utils
+from .utils.conversation_logger import log_conversation_event
+from .utils.telegram_handler import send_telegram_message
+import json
+import os
+import datetime
 from .models.product import Product
 from .config import Config
 
@@ -271,3 +276,51 @@ def deactivate_product_task(self, product_id: str):
     except Exception as exc:
         logger.exception(f"Task {task_id}: Unexpected error during deactivation of product_id {product_id}: {exc}")
         raise self.retry(exc=exc)
+
+
+@celery_app.task(
+    bind=True,
+    base=FlaskTask,
+    name='namwoo_app.celery_tasks.check_unanswered_conversations',
+)
+def check_unanswered_conversations_task(self):
+    """Scan conversation log for unanswered user messages and alert via Telegram."""
+    log_file = os.path.join(Config.LOG_DIR, 'conversations.json')
+    threshold = getattr(Config, 'UNANSWERED_THRESHOLD_MINUTES', 5)
+    now = datetime.datetime.utcnow()
+
+    if not os.path.exists(log_file):
+        logger.debug('Conversation log not found for unanswered check.')
+        return
+
+    last_events = {}
+    try:
+        with open(log_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                cid = event.get('conversation_id')
+                ts_str = event.get('timestamp')
+                if not cid or not ts_str:
+                    continue
+                try:
+                    ts = datetime.datetime.strptime(ts_str, '%Y-%m-%d %H:%M:%S')
+                except Exception:
+                    continue
+                last_events[cid] = {'type': event.get('event_type'), 'timestamp': ts, 'user_id': event.get('user_id')}
+    except Exception as e:
+        logger.exception(f'Failed to read conversation log for unanswered check: {e}')
+        return
+
+    for cid, info in last_events.items():
+        if info['type'] == 'incoming_message' and (now - info['timestamp']).total_seconds() > threshold * 60:
+            alert_msg = f"Conversation {cid} from user {info.get('user_id')} unanswered for {threshold} minutes"
+            send_telegram_message(alert_msg)
+            logger.warning(alert_msg)
+
+
+@celery_app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(60.0, check_unanswered_conversations_task.s(), name='check unanswered conversations')

@@ -17,6 +17,7 @@ from ..config import Config
 from ..extensions import get_redis_client
 from ..models.conversation_pause import ConversationPause
 from ..utils.text_utils import split_full_name
+from ..utils.conversation_logger import log_conversation_event
 
 # --- Service Imports ---
 # CORRECTED: Only import the main AI service dispatcher.
@@ -219,8 +220,15 @@ def handle_support_board_webhook():
                         return jsonify({"status": "ok", "message": "Template sent via phone from extracted data"}), 200
             except Exception as e:
                 logger.exception(f"LLM info extraction failed: {e}")
-        
+
         # --- UNIFIED AI SERVICE CALL (THE ONLY CHANGE FROM THE OLD FILE) ---
+        log_conversation_event(
+            event_type="incoming_message",
+            conversation_id=str(sb_conversation_id),
+            user_id=customer_user_id_str,
+            source=conversation_source or "unknown",
+            message=new_user_message_text,
+        )
         logger.info(f"Conv {sb_conversation_id} is active. Delegating to unified AI service.")
         try:
             ai_service.process_new_message(
